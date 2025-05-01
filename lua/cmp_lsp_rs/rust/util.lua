@@ -12,12 +12,24 @@ M._import = function(data1, data2)
     return true
   end
 
+  local get_field_or_empty = function(data, field)
+    if data[field] == nil then
+      return ""
+    end
+    return data[field]
+  end
+
   -- both are imported items
   -- usually RA emits exact one import path and item name;
   -- for multiple same item names, RA will emit distinct completion_items for their own paths
   local import1 = data1.imports[1]
   local import2 = data2.imports[1]
-  local path_ord = vim.stricmp(import1.full_import_path, import2.full_import_path)
+
+  local import1_full_import_path = get_field_or_empty(import1, "full_import_path")
+  local import2_full_import_path = get_field_or_empty(import2, "full_import_path")
+
+    -- both have import path, then compare by path
+  local path_ord = vim.stricmp(import1_full_import_path, import2_full_import_path)
   if path_ord == -1 then
     -- e1 from lexically less path
     return true
@@ -25,7 +37,10 @@ M._import = function(data1, data2)
     -- e1 from lexically greater path
     return false
   else
-    local item_ord = vim.stricmp(import1.imported_name, import2.imported_name)
+    local import1_imported_name = get_field_or_empty(import1, "imported_name")
+    local import2_imported_name = get_field_or_empty(import2, "imported_name")
+
+    local item_ord = vim.stricmp(import1_imported_name, import2_imported_name)
     if item_ord == 1 then
       return false
     elseif item_ord == -1 then
